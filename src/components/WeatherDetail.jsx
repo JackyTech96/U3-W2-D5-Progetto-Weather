@@ -1,48 +1,87 @@
-import { Button, Container } from "react-bootstrap";
-import Card from "react-bootstrap/Card";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import { useEffect } from "react";
-import { useState } from "react";
-import Spinner from "react-bootstrap/Spinner";
+import React, { useState, useEffect } from "react";
+import { Container, Card, Row, Col, Spinner, Button } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { Sunrise, SunsetFill } from "react-bootstrap-icons";
 
 const API_KEY = "c63b7218c947999fed78cdcccc7adef8";
 
-const WeatherDetails = () => {
+const WeatherDetail = () => {
   const [weatherData, setWeatherData] = useState(null);
+  const [forecastData, setForecastData] = useState(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const city = location.state ? location.state.city : null;
 
   useEffect(() => {
-    const fetchWeather = async () => {
+    const fetchData = async () => {
       try {
         if (city) {
           setLoading(true);
-          let resp = await fetch(
+          let weatherResp = await fetch(
             `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${API_KEY}&units=metric`
           );
-          if (resp.ok) {
-            let data = await resp.json();
-            console.log(data);
-            setWeatherData(data);
-            setLoading(false);
+          if (weatherResp.ok) {
+            let weatherData = await weatherResp.json();
+            setWeatherData(weatherData);
           } else {
-            console.log("error fetching weather");
-            setLoading(false);
+            console.log("error fetching current weather");
           }
+          let forecastResp = await fetch(
+            `https://api.openweathermap.org/data/2.5/forecast?lat=${city.lat}&lon=${city.lon}&appid=${API_KEY}&units=metric`
+          );
+          if (forecastResp.ok) {
+            let forecastData = await forecastResp.json();
+            const dailyForecastData = forecastData.list.filter((item, index) => index % 8 === 0);
+            setForecastData(dailyForecastData);
+          } else {
+            console.log("error fetching 5-day forecast");
+          }
+          setLoading(false);
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
         setLoading(false);
       }
     };
     if (city) {
-      fetchWeather();
+      fetchData();
     }
   }, [city]);
+
+  const renderForecast = () => {
+    if (!forecastData) return null;
+    return (
+      <Row className="mt-4 justify-content-center">
+        <h3 className="my-3 text-center">5-Day Forecast</h3>
+        {forecastData.map((forecast, index) => (
+          <Col key={`forecast-${index}`} xs={12} md={6} lg={4} xl={2} className="mb-4">
+            <Card className="border-0 shadow-lg p-4">
+              <Card.Body>
+                <h6 className="text-center mb-3">
+                  {new Date(forecast.dt * 1000).toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "numeric",
+                    day: "numeric",
+                  })}
+                </h6>
+                <div className="d-flex justify-content-center align-items-center mb-3">
+                  <img
+                    className="bg-info border rounded-pill me-3"
+                    src={`https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`}
+                    alt="img"
+                    style={{ width: "60px", height: "60px" }}
+                  />
+                  <div>
+                    <span className="fw-bold fs-4">{Math.round(forecast.main.temp)}°C</span>
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    );
+  };
 
   const UnixSunriseTime = weatherData ? weatherData.sys.sunrise : null;
   const risedate = UnixSunriseTime ? new Date(UnixSunriseTime * 1000) : null;
@@ -100,7 +139,6 @@ const WeatherDetails = () => {
                       </Card.Text>
                     </Col>
                   </Row>
-
                   <Row className="text-center fs-5">
                     <Col xs={12} sm={6}>
                       Sunrise <Sunrise className="mx-1" />
@@ -112,12 +150,13 @@ const WeatherDetails = () => {
                     </Col>
                   </Row>
                 </Card.Body>
+                {renderForecast()}
               </div>
             ) : null}
           </Card>
         </Col>
       </Row>
-      <div className="d-flex justify-content-center mt-3">
+      <div className="d-flex justify-content-center mt-3 pb-3">
         <Link to={"/"}>
           <Button variant="info" className="text-white">
             Return to Search
@@ -128,4 +167,4 @@ const WeatherDetails = () => {
   );
 };
 
-export default WeatherDetails;
+export default WeatherDetail;

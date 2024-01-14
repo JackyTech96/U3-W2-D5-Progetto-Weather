@@ -1,4 +1,3 @@
-// WeatherApp.jsx
 import { useEffect, useState } from "react";
 import { Container, Form, Row, Col, ListGroup } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -40,10 +39,9 @@ const WeatherApp = () => {
 
   return (
     <Container className="d-flex flex-column flex-grow-1">
-      <h3 className="mt-4 text-white-50">Search a city here:</h3>
       <Row className="justify-content-center">
         <Col xs={11} md={8} lg={6}>
-          <Form.Group>
+          <Form.Group className="my-5">
             <Form.Control
               className="p-1 fs-5"
               type="search"
