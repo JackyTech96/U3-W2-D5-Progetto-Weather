@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Container, Nav, NavDropdown, Navbar } from "react-bootstrap";
 import { BrightnessHigh, List } from "react-bootstrap-icons";
 
-const WeatherNavBar = () => {
+const WeatherNavbar = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("EN");
 
   const handleLanguageChange = (language) => {
@@ -31,4 +31,4 @@ const WeatherNavBar = () => {
   );
 };
 
-export default WeatherNavBar;
+export default WeatherNavbar;

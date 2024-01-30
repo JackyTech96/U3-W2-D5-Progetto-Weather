@@ -1,14 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import WeatherNavBar from "./components/WeatherNavBar";
+import WeatherNavbar from "./components/WeatherNavbar";
 import WeatherApp from "./components/WeatherApp";
 import WeatherDetails from "./components/WeatherDetail";
 
 function App() {
   return (
     <BrowserRouter>
-      <WeatherNavBar />
+      <WeatherNavbar />
       <Routes>
         <Route path="/" element={<WeatherApp />}></Route>
         <Route path="/weather/:city" element={<WeatherDetails />}></Route>
