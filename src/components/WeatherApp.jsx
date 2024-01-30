@@ -18,7 +18,7 @@ const WeatherApp = () => {
       try {
         if (searchValue.trim() !== "") {
           let resp = await fetch(
-            `http://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${API_KEY}`
+            `https://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${API_KEY}`
           );
           if (resp.ok) {
             let data = await resp.json();
