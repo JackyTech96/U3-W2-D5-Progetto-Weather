@@ -1,52 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Container, Card, Row, Col, Spinner, Button } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { Sunrise, SunsetFill } from "react-bootstrap-icons";
-
-const API_KEY = "c63b7218c947999fed78cdcccc7adef8";
+import { fetch5DayForecast, fetchCurrentWeather } from "../redux/actions";
 
 const WeatherDetail = () => {
-  const [weatherData, setWeatherData] = useState(null);
-  const [forecastData, setForecastData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
   const location = useLocation();
   const city = location.state ? location.state.city : null;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (city) {
-          setLoading(true);
-          let weatherResp = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${API_KEY}&units=metric`
-          );
-          if (weatherResp.ok) {
-            let weatherData = await weatherResp.json();
-            setWeatherData(weatherData);
-          } else {
-            console.log("error fetching current weather");
-          }
-          let forecastResp = await fetch(
-            `https://api.openweathermap.org/data/2.5/forecast?lat=${city.lat}&lon=${city.lon}&appid=${API_KEY}&units=metric`
-          );
-          if (forecastResp.ok) {
-            let forecastData = await forecastResp.json();
-            const dailyForecastData = forecastData.list.filter((item, index) => index % 8 === 0);
-            setForecastData(dailyForecastData);
-          } else {
-            console.log("error fetching 5-day forecast");
-          }
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error(error);
-        setLoading(false);
-      }
-    };
     if (city) {
-      fetchData();
+      dispatch(fetchCurrentWeather(city.lat, city.lon));
+      dispatch(fetch5DayForecast(city.lat, city.lon));
     }
-  }, [city]);
+  }, [city, dispatch]);
+
+  const weatherData = useSelector((state) => state.detail.currentWeather.data);
+  const forecastData = useSelector((state) => state.detail.fiveDayForecast.data);
+  const loading = useSelector((state) => state.detail.currentWeather.loading);
 
   const renderForecast = () => {
     if (!forecastData) return null;

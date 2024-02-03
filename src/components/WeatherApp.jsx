@@ -1,41 +1,22 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Form, Row, Col, ListGroup } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-
-const API_KEY = "c63b7218c947999fed78cdcccc7adef8";
+import { fetchWeatherData } from "../redux/actions";
+import { useDispatch, useSelector } from "react-redux";
 
 const WeatherApp = () => {
-  const [searchData, setWeatherData] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const searchData = useSelector((state) => state.weather.weatherData);
 
   const handleCityClick = (city) => {
     navigate(`/weather/${city.name}`, { state: { city } });
   };
 
   useEffect(() => {
-    const fetchWeatherData = async () => {
-      try {
-        if (searchValue.trim() !== "") {
-          let resp = await fetch(
-            `https://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${API_KEY}`
-          );
-          if (resp.ok) {
-            let data = await resp.json();
-            console.log(data);
-            setWeatherData(data);
-          } else {
-            console.log("error fetching search weather");
-          }
-        } else {
-          setWeatherData([]);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchWeatherData();
-  }, [searchValue]);
+    dispatch(fetchWeatherData(searchValue));
+  }, [searchValue, dispatch]);
 
   return (
     <Container className="d-flex flex-column flex-grow-1">
